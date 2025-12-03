@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>排行榜展示（3D 环形旋转版）</title>
+<title>排行榜展示（3D 环形旋转版 v2）</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 <style>
@@ -46,7 +46,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  transform-origin: center center -450px; /* 半径 = 宽度 / 2 */
 }
 
 .card-content {
@@ -195,12 +194,12 @@ const colors = [
 ];
 
 const carousel = document.getElementById('carousel');
-let currentIndex = 0;
 
-/* ===== 创建卡片元素并排成环 ===== */
+/* ===== 创建卡片元素，围绕中心旋转 ===== */
 function createCardElements() {
   carousel.innerHTML = "";
   const n = cardData.length;
+  const radius = 450; // 圆盘半径
   cardData.forEach((card, i) => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "card";
@@ -215,22 +214,32 @@ function createCardElements() {
       </div>
     `;
     const angle = (360 / n) * i;
-    cardDiv.style.transform = `rotateY(${angle}deg) translateZ(450px)`;
+    cardDiv.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
     carousel.appendChild(cardDiv);
   });
 }
 
-/* ===== 更新轮播旋转 ===== */
+/* ===== 累计角度控制旋转 ===== */
+let angleY = 0;
+let currentIndex = 0;
 function updateCarousel() {
-  const angle = -90 * currentIndex;
-  carousel.style.transform = `rotateY(${angle}deg)`;
+  carousel.style.transform = `rotateY(${angleY}deg)`;
   document.body.style.background = colors[currentIndex];
 }
 
-/* ===== 点击切换 ===== */
-function nextSlide() { currentIndex = (currentIndex + 1) % cardData.length; updateCarousel(); }
-function prevSlide() { currentIndex = (currentIndex - 1 + cardData.length) % cardData.length; updateCarousel(); }
+function nextSlide() {
+  angleY -= 90; // 顺时针旋转
+  currentIndex = (currentIndex + 1) % cardData.length;
+  updateCarousel();
+}
 
+function prevSlide() {
+  angleY += 90; // 逆时针旋转
+  currentIndex = (currentIndex - 1 + cardData.length) % cardData.length;
+  updateCarousel();
+}
+
+/* ===== 点击切换 ===== */
 document.querySelector(".left-zone").addEventListener("click", prevSlide);
 document.querySelector(".right-zone").addEventListener("click", nextSlide);
 
@@ -287,4 +296,5 @@ setInterval(loadDataFromGS, 5 * 60 * 1000); // 每5分钟刷新一次
 
 </body>
 </html>
+
 
